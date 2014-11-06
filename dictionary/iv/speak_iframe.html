@@ -1,0 +1,49 @@
+<!-- -*- tab-width: 4 -*- -->
+<html>
+<head>
+  <script type="text/javascript" src="../js/jquery-1.4.4.min.js"></script>
+</head>
+<body>
+
+<script type="text/javascript">
+    var nriv = function(pdata) { };
+    (function() {
+	var word = window.location.hash.substring(1);
+	var pronounce_url = "pronunciations/" + word;
+
+	function play_this_mp3(url) {
+	    var embed = $('<embed src="" type="audio/mpeg" loop="false" autostart="true" hidden="true" width="10" height="10"></embed>');
+	    embed.attr("src", url);
+	    $("body").append(embed);
+	}
+
+	function register_pronounce_callback(cb) {
+	    nriv = cb;
+	}
+
+	function request_pronounciation_for_word(word) {
+	    $.ajax({
+		url: pronounce_url, 
+		dataType: "script"
+	    });
+	}
+
+	if (word) {
+	    register_pronounce_callback(function(pdata) {
+		if (!pdata.items || pdata.items.length == 0) {
+		    return;
+		}
+		
+		/* Play using forvo */
+		var purl = pdata.items[0].pathmp3;
+		play_this_mp3(purl);
+	    });
+	    
+	    request_pronounciation_for_word(word);
+	}
+    })();
+
+</script>
+
+</body>
+</html>

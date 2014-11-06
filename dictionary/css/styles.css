@@ -1,0 +1,224 @@
+body {
+  margin-left: 20px;
+  font-family: 'Segoe UI', Arial, sans-serif;
+}
+.centered {
+  width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.ta-center {
+  text-align: center;
+}
+h3 {
+  margin-top: 30px;
+}
+ol > li {
+  margin-top: 9px;
+}
+li {
+  margin-top: 5px;
+}
+a {
+  font-size: 105%;
+  color: #1168CC;
+  text-decoration: none;
+  cursor: pointer;
+}
+li a {
+  display: inline-block;
+}
+a:visited {
+  color: #6830BB;
+}
+.profile-image32 {
+  margin-right: 20px;
+  top: 5px;
+  position: relative;
+  background-image: url(../../gravatar.com/avatar/6a72c6b580bfbed32b987bad16e88770@s=32);
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  border-radius: 16px;
+  -moz-border-radius: 16px;
+  -webkit-border-radius: 16px;
+  -khtml-border-radius: 16px;
+}
+.title {
+  margin-top: 20px;
+  font-size: 120%;
+  border-bottom: 1px solid #1168CC;
+}
+.h1-title {
+  color: #888888;
+  margin-bottom: 7px;
+}
+.list-no-style {
+  list-style: none;
+}
+p {
+  text-align: justify;
+}
+.nav {
+  font-size: 12px;
+  padding-top: 10px;
+  text-align: center;
+}
+.nav a {
+  /* margin-right: 1.4em; */
+}
+.tagcloud {
+  width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.tagcloud span {
+  /* font-weight: bold; */
+  margin-right: 20px;
+  height: 2.1em;
+}
+.tagcloud a:hover {
+  color: #FF33CC;
+}
+.this-page {
+  font-weight: bold;
+  color: black;
+}
+.paper {
+  margin-top: 20px;
+}
+.paper .paper-title {
+  font-weight: bold;
+}
+.paper .paper-authors {
+  display: inline-table;
+}
+.paper .paper-pub {
+  display: inline-table;
+}
+.paper .paper-link {
+  display: inline-table;
+  margin-left: 5px;
+}
+.paper .paper-link a {
+}
+.course {
+  margin-top: 20px;
+}
+.course .course-title {
+  font-weight: bold;
+}
+.course .course-institute, .course .course-date {
+  display: inline-table;
+}
+.emphasize {
+  color: #FFAA00;
+  font-weight: bold;
+}
+.p-title {
+  display: inline-block;
+  width: 60px;
+}
+.after-list {
+  margin-top: 7px;
+}
+a.handout {
+  margin-left: 10px;
+}
+#customize-link {
+  float: right;
+}
+.customize-link {
+  display: inline-block;
+  /* font-size: 12px; */
+}
+.ui-dialog {
+  font-size: 18px;
+  line-height: 1.5em;
+}
+#customize {
+  text-align: left;
+  min-height: 200px;
+}
+.sel-span {
+  width: 50px;
+  display: inline-block;
+  cursor: pointer;
+}
+.c-title {
+  display: inline-block;
+  float: left;
+}
+.c-option {
+  padding-top: 10px;
+}
+.c-selections {
+  clear: both;
+}
+#sel-bg-1 {
+  background-color: #FFFFBB;
+}
+#sel-bg-2 {
+  background-color: #CCFFEE;
+}
+#sel-bg-3 {
+  background-color: #FFFFFF;
+}
+#sel-bg-4 {
+  background-color: #FFDDFF;
+}
+#sel-fg-1 {
+  background-color: #CC4433;
+  color: #CC4433;
+}
+#sel-fg-2 {
+  background-color: #0000AA;
+  color: #0000AA;
+}
+#sel-fg-3 {
+  background-color: #000000;
+  color: #000000;
+}
+#sel-fg-4 {
+  background-color: #661199;
+  color: #661199;
+}
+#sel-ff-1 {
+  font-family: Arial;
+}
+#sel-ff-2 {
+  font-family: Cursive, 'Comic Sans';
+}
+#sel-ff-3 {
+  font-family: 'Segoe UI', Verdana;
+}
+#sel-ff-4 {
+  font-family: 'Myraid Pro';
+}
+#sel-fs-1 {
+  font-size: 14px;
+}
+#sel-fs-2 {
+  font-size: 16px;
+}
+#sel-fs-3 {
+  font-size: 18px;
+}
+#sel-fs-4 {
+  font-size: 20px;
+}
+#sel-lh-1 {
+  line-height: 150%;
+}
+#sel-lh-2 {
+  line-height: 170%;
+}
+#sel-lh-3 {
+  line-height: 190%;
+}
+#sel-lh-4 {
+  line-height: 210%;
+}
+.actions {
+  background-color: #FFEEAA;
+}

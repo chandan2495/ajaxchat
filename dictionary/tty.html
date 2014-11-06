@@ -1,0 +1,1190 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <link rel="icon" type="image/png" href="images/terminal.png">
+  <link rel="stylesheet" href="css/jquery.terminal.css"/>
+  <script type="text/javascript" src="js/jquery-1.4.4.min.js"></script>
+  <script type="text/javascript" src="js/jquery.cookie.js"></script>
+  <script type="text/javascript" src="js/jquery.mousewheel.min.js"></script>
+  <script type="text/javascript" src="js/jquery.timers.min.js"></script>
+  <script type="text/javascript" src="js/jquery.terminal-0.2.3.5.js"></script>
+  <script type="text/javascript" src="js/jquery.timeago.js"></script>
+  <title>Duck Duck Go Search</title>
+
+  <style type="text/css">
+  body {
+	  background-color: #000000;
+  }
+  #tilda b {
+    color: #AAAA55;
+    font-weight: normal;
+  }
+  </style>
+</head>
+
+<body>
+
+<div id="tilda"></div>
+
+<script type="text/javascript">
+
+if (!window.console) {
+  window.console = {
+    log: function() {}, 
+    error: function() {}, 
+    dir: function() {}, 
+    warn: function() {}
+  };
+}
+
+
+/* Changelog:
+ *
+ * Version-1:
+ * Working interface.
+ *
+ * Version-2:
+ * Links highlighted in a darker shade instead of just bold to take attention away from the search term.
+ * Strict ordering on the way results are displayed without compromising on performance (via all_ready).
+ * Default link opening in in a new tab/window.
+ * :+ & :- to increase/decrease the font size.
+ * Terminal adjusts size when the window & font size is resized an adjusts the number of results to show accordingly.
+ *
+ * Version-3:
+ * Fixed some typos in the help message.
+ * Correctly set the number of characters on the line depending on the screen width and the font size.
+ *
+ * Version-4:
+ * Autocomplete list shows vertically if possible with a fixed number of spaces between each option.
+ *
+ * Version-5:
+ * Added support for viewing history via the ":history" command.
+ *
+ * Version-6:
+ * The view count in the ':history' command should be right aligned.
+ *
+ * Version-7:
+ * Abstract results: Trim the text to 300 chars. Remove <img> tags. Keep only the text for <a> tags.
+ * 
+ * Version-8:
+ * Add Ctrl+L to clear the terminal.
+ *
+ * Version-9:
+ * Fix minor bug in auto-complete. Make the longest prefix from the suggestions automatically fill up.
+ *
+ * Version-10:
+ * Add add 'howjsay' (apart from 'forvo') for word pronunciations. Make both links openable.
+ * Fix but that made the number of links seen 'NaN' at times.
+ *
+ * Version-11:
+ * Bug-fix: The DDG API changed. Hence o=json was being added to every URL automatically. Explicitly
+ * remove this to allow JSONP functioning.
+ *
+ *
+ */
+
+
+var ddg_logo =
+"                             .:/++++/:-.`                                                           \n" +
+"                             `-/syyyyyyyys+:.                                                       \n" +
+"                            `+ossosssyyyyyyyys/.                                                    \n" +
+"                             ``````.:+oyyyyyyys/-.`                                                /n" +
+"                               `:+syyyyyyyyyyyyyyyyso/.                                             \n" +
+"                             `/syyyyyyyyyyyyyyyyyyyyyyy/`                                           \n" +
+"                            .syyyyyyyyyyyyyyyyyyyyyyyyyys.                                          \n" +
+"                           -syyyyysosyyyyyyyyyyyyyyys+//+o-                                         \n" +
+"                          `oyyys::+ossyyyyyyyyyyyyyyssssssy-                                        \n" +
+"                          :syyy/syyyyyyyyyyyyyyyyyyyyyyyyyys`                                       \n" +
+"                          +syyyyyyyyyyyyyyyyyyyyyyyyyys+/+yy+                                       \n" +
+"                          +syyyyyys:.-:syyyyyyyyyyyyyy.   -yy.                                      \n" +
+"                          :yyyyyyy-    .yyyyyyyyyyyyyy:` `:yy/                                      \n" +
+"                          `ysyyyyy/`  `/yyyyyyyyyyyyyyysssyyyo       ``..--..`                      \n" +
+"                           osyyyyyysoosyyyyyyyyyyyyyyyyyyyyyy+``...---::::::::.                     \n" +
+"                           -ysyyyyyyyyyyyyyyyyyyyyysoooo+++//:-:::::::::::--.`                      \n" +
+"                           `ssyyyyyyyyyyyyyyyyyso/:::::::::::::::::::---.``                         \n" +
+"                            /yyyyyyyyyyyyyyyys+::::::::::::::::---..``                              \n" +
+"                            `ysyyyyyyyyyyyyyy/:::::::.```....```                                    \n" +
+"                             osyyyyyyyyyyyyyyo:::::::                                               \n" +
+"                             -ysyyyyyyyyyyyyyyo::::::-.``        ```...----                         \n" +
+"                              ssyyyyyyyyyyyyyyyy/.---:::----------::::::--`                         \n" +
+"                              :yyyyyyyyyyyyyyyyy/   ``..--------------.``                           \n" +
+"                              `ysyyyyyyyyyyyyyyy/          ````````                                 \n" +
+"                               +syyyyyyyyyyyyyyys                                                   \n" +
+"                               .ysyyyyyyyyyyyyyyy-                                                  \n" +
+"                                osyyyyyyyyyyyyyyyo        `.-`                                      \n" +
+"                                :yyyyooosyyyyyyyyy:    `-/oss+                                      \n" +
+"                                `ssys://++ossyyssso-..:+oossss`                                     \n" +
+"                                 /yys://++ooss++oooso//+oossss-                                     \n" +
+"                                 .ysy://++ooss++oooss//+oossss-                                     \n" +
+"                                  osy://++ooss++oooss/++oossss.                                     \n" +
+"                                  -ys///++oossssssssyys--/+oso                                      \n" +
+"                                   sso//+ossyyyyyyyyyyyo`                                           \n" +
+"                                   -sysyyyyyyyyyyyyyyyyys`                                          \n" +
+"                                    :osyyyyyyyyyyyyyyyyyo                                          /n";
+
+var _lctr = 0; // Next link counter
+var _links = []; // Links with indexes
+var _web = []; // Remaining web results (not yet displayed)
+var _next_url = ''; // If this is falsy, then nothing is fetched
+var _zc = { }; // The main results.
+var _nd = 0; // Number of results displayed in the previous call. If this is 0
+// then the next callback will display the results it fetches.
+var _terminal = null;
+var _history = [ ]; // The user's search history in this session
+var _corrected_search = ''; // The search suggestion
+var _all_in_new = true; // Show all links in a new window??
+var _n_curr_search_displayed = 0; // The number of results displayed for the current search till now
+var _WEB_BUFFER_SIZE = 20; // Make sure we have buffered at least 20 results
+var _WEB_DISPLAY_AT_ONCE = 9; // How many results to display at one go 
+  // (this will be varied according to the font size and window height)
+var _STR_PAD_LEN = 4; // How many characters to pad to the right of a string in the suggestion list
+var _NUM_SUGGESTIONS_TO_SHOW = 10; // How many suggestions to show
+var _WIN_BOT_PADDING   = 30; // In Pixels
+var _WIN_RIGHT_PADDING = 30; // In Pixels
+
+
+// History format: { q: "query", ts: new Date(), nv: number of results viewed };
+
+var speak_iframe_url = "iv/speak_iframe.html";
+
+
+
+var search_callback = function() { }; // Zero-click callback
+var nrn = function(results) { }; // Web results callback
+var nra = function(results) { alert("abstract callback"); }; // WA/Abstract callback
+var nrp = function(suggestion_escaped, suggestion_html) { }; // Spelling callback
+var trigger_ac = function() { alert("Please implement!"); }; // Auto-Complete trigger
+
+
+
+(function() {
+
+  function all_ready(n, cb, init) {
+    // Wait for multiple events to be fired in any order. Once they are fired, 
+    // call the callback (cb) with the most recent (non-empty) parameters received
+    // from the event notifiers.
+    //
+    // n  -> The number of event notifiers to wait for.
+    // cb -> The callback to fire
+    //
+    // Returns: An array of 'n' functions which are to be called by the 'n' 
+    // event notifiers when the events complete.
+    //
+
+    var en = [ ]; // The Event Notifiers - Fired by the application; Returned by all_ready()
+    var notified = [ ]; // A state map indicating which events have been fired
+    var args = init; // Last non-empty arguments received from an Event Notifier
+
+    function are_all_ready() {
+      var ctr = 0;
+      for (var i = 0; i < n; ++i) {
+        if (notified[i] == 0) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    for (var i = 0; i < n; ++i) {
+      notified[i] = 0;
+      en[i] = (function() {
+        var j = i;
+        return function() {
+          notified[j] = 1;
+          if (arguments.length > 0) {
+            args = arguments;
+          }
+          if (are_all_ready()) {
+            cb.apply(window, args);
+          }
+        };
+      })();
+    }
+
+    return en;
+  }
+
+  function once(proc) {
+    /* Ensure that 'proc' is called only once, irrespective of how many 
+     * times the wrapping (outer) procedure is called.
+     */
+    var _fired = false;
+    var _ret = null;
+
+    return function() {
+      if (!_fired) {
+        _fired = true;
+        _ret = proc.apply(window, arguments);
+      }
+      return _ret;
+    };
+  }
+
+  function my_map(a, f) {
+    /* Because jQuery.map behaves weird at times */
+    var r = [ ];
+    for (var i = 0; i < a.length; ++i) {
+      r.push(f(a[i], i));
+    }
+    return r;
+  }
+
+  function open_link(url, in_new) {
+    // console.log(env);
+    if (!in_new && !_all_in_new) {
+      window.location = url;
+    }
+    else {
+      window.open(url);
+    }
+  }
+
+  function get_keys(o) {
+    var r = [ ];
+    for (var k in o) {
+      r.push(k);
+    }
+    return r;
+  }
+
+  function str_pad_or_dot(s, p, d, len, dirn) {
+    if (s.length <= len) {
+      return dirn == 'l' ? strpad(s, p, len) : strpad_prefix(s, p, len);
+    }
+    else {
+      return strdot(s, d, len);
+    }
+  }
+
+  function strdot(s, d, len) {
+    if (s.length > len) {
+      return s.substring(0, len-3) + ['', '', '', ''].join(d);
+    }
+    else {
+      return s;
+    }
+  }
+
+  function strpad(s, p, len) {
+    while (s.length < len) {
+      s += p;
+    }
+    return s;
+  }
+
+  function strpad_prefix(s, p, len) {
+    while (s.length < len) {
+      s = p + s;
+    }
+    return s;
+  }
+
+  function strprepad(s, p, len) {
+	  for (var i = 0; i < len; ++i) {
+		  s = p + s;
+	  }
+	  return s;
+  }
+
+  function max_length_sa(a) {
+    var _l = $.map(a, function(v) {
+      return v.length;
+    });
+    var _mlen = Math.max.apply(Math, _l);
+    return _mlen;
+  }
+
+  function htmlentities(s) {
+    return s.replace(/&/g,"&amp;")
+      .replace(/</g,"&lt;")
+      .replace(/>/g,"&gt;")
+      .replace(/"/g,"&quot;")
+      .replace(/'/g,"&apos;");
+  }
+
+  function history_add(q) {
+    _history.push({
+      q: q, 
+      ts: new Date(), 
+      nv: 0
+    });
+  }
+
+  function history_update() {
+    var l = _history.length;
+    if (!l) {
+      return;
+    }
+    _history[l-1].nv = _n_curr_search_displayed;
+  }
+
+  function display_search_history(terminal) {
+    var _h = my_map(_history, function(v) {
+      return [v.q, $.timeago(v.ts), v.nv];
+    });
+
+    if (_h.length == 0) {
+      terminal.echo("No history yet!!");
+      return;
+    }
+
+    draw_table(["Query", "Search Performed", "Number of results seen"], _h, [ 100, 50, 30 ], terminal);
+  }
+
+  function draw_table(titles, rows, max_col_widths, terminal) {
+    if (rows.length == 0) {
+      return;
+    }
+
+    var _m = my_map(titles, function(v, i) {
+      return v.length;
+    });
+
+    console.log("_m(1):", _m);
+
+    var _m1 = my_map(rows, function(v, i) {
+      return my_map(v, function(v1) {
+        return v1.toString().length;
+      });
+    });
+
+    console.log("_m1:", _m1);
+
+    $.each(_m1, function(i, v) {
+      $.each(v, function(j, v1) {
+        _m[j] = Math.min(Math.max(_m[j], v1), max_col_widths[j]);
+      });
+    });
+
+    var dashes = my_map(_m, function(v) {
+      return strpad('', '-', v+2);
+    });
+
+    var ptitle = my_map(titles, function(v, i) {
+      return strpad(v, ' ', _m[i]);
+    });
+
+    console.log("_m:", _m);
+
+    terminal.echo("+" + dashes.join("+") + "+");
+    terminal.echo("| " + ptitle.join(" | ") + " |");
+    terminal.echo("+" + dashes.join("+") + "+");
+    $.each(rows, function(i, v) {
+      var _m2 = my_map(v, function(v1, j) {
+        return str_pad_or_dot(v1.toString(), ' ', '.', _m[j], typeof v1 == "string" ? "l" : "r");
+      });
+      terminal.echo("| " + _m2.join(" | ") + " |");
+    });
+    terminal.echo("+" + dashes.join("+") + "+");
+  }
+
+  function register_search_callback(cb) {
+	  search_callback = cb;
+  }
+
+  function register_web_callback(cb) {
+	  nrn = function(type, results) {
+		  if (type == "d") {
+			  cb(results);
+		  }
+	  }
+  }
+
+  function get_character_width() {
+    return $(".cmd .cursor").width();
+  }
+
+  function get_screen_width_characters() {
+    return parseInt(($(window).width() - _WIN_RIGHT_PADDING) / get_character_width());
+  }
+
+  function register_abstract_callback(cb) {
+	  nra = cb;
+  }
+
+  function register_spelling_callback(cb) {
+	  nrp = cb;
+  }
+
+  function add_link(url) {
+	  _links[_lctr] = url;
+	  _lctr += 1;
+  }
+
+  function display_why(terminal) {
+	  terminal.echo("Because Devdas uses vimperator with Google?? I don't think they mix well. Devdas, you should try this instead.");
+  }
+
+
+  function fetch_spelling_correction(cb) {
+    /* If we don't have any spelling results, we just fire 'cb' */
+	  if (!_zc.Calls["spelling"]) {
+		  cb();
+		  return;
+	  }
+
+    register_spelling_callback(function(suggestion_escaped, suggestion_html) {
+      console.log("In spelling correction JSONP callback");
+      cb([suggestion_escaped, suggestion_html]);
+    });
+
+    $.ajax({
+      url: "../duckduckgo.com/" + _zc.Calls.spelling, 
+      dataType: "script", 
+      type: "GET", 
+      success: function() {
+        cb();
+      }, 
+      error: function() {
+        cb();
+      }
+    });
+  }
+
+
+  function display_spelling_correction(spelling) {
+    if (!spelling || !spelling[0] || !spelling[1]) {
+      return;
+    }
+
+    var se = spelling[0];
+    var sh = spelling[1];
+
+    _corrected_search = unescape(se);
+    show_single_result(_terminal, "Did you mean to search for '" + sh + "' instead?", 
+      "Type ':yes' if you did or 'm' for more results for the current search.", '');
+    _n_curr_search_displayed += 1;
+  }
+
+
+  function fetch_abstract_results(cb) {
+    console.log("fetch_abstract_results()");
+
+    /* If we don't have any abstract results, we just fire 'cb' */
+	  if (!(_zc.Calls["abstract"] || _zc.Calls["wa"])) {
+      console.log("firing abstract callback since there is nothing to fetch.");
+		  cb();
+		  return;
+	  }
+
+    /* Register the callback for JSONP */
+	  register_abstract_callback(cb);
+
+    /* Make the ajax call */
+	  $.ajax({
+		  url: "../duckduckgo.com/" + (_zc.Calls["abstract"] || _zc.Calls["wa"]), 
+		  type: "GET", 
+		  dataType: "script", 
+		  success: function() {
+        cb();
+      }, 
+		  error: function() {
+        cb();
+      }
+	  });
+  }
+
+  function display_abstract_results(results) {
+    if (!results || results.length == 0) {
+      return;
+    }
+
+    for (var i = 0; i < results.length; ++i) {
+      var r = results[i];
+      var h = r.h;
+      var a = r.a;
+      var jq_a = $("<div>" + a + "</div>");
+      jq_a.find("img").remove();
+      a = strdot(jq_a.text(), ".", 300);
+
+      if (!h) {
+        h = r.a;
+        a = '';
+      }
+      show_single_result(_terminal, h, a, r.u);
+    }
+
+    _n_curr_search_displayed += results.length;
+  }
+
+
+  function show_single_result(terminal, heading, text, url) {
+	  var _p = [ ];
+	  url = url || '';
+	  var _indexer = "[:" + _lctr + "] ";
+	  _p.push(_indexer + heading);
+	  if (text) {
+		  _p.push(strprepad(text, '&nbsp;', _indexer.length));
+	  }
+	  if (url) {
+		  _p.push(strprepad(url, '&nbsp;', _indexer.length));
+	  }
+	  terminal.echo(_p.join("<br/>"), { raw: 1 });
+	  add_link(url);
+  }
+
+  function display_zc_results(terminal, result) {
+	  var ctr = 0;
+
+	  if (result.AbstractText) {
+		  show_single_result(terminal, result.Heading, result.AbstractText, result.AbstractURL);
+		  ctr++;
+	  }
+
+	  if (result.Answer) {
+		  show_single_result(terminal, result.Answer, '', '');
+		  ctr++;
+	  }
+
+	  if (result.Definition) {
+		  show_single_result(terminal, result.Heading, result.Definition, result.DefinitionURL);
+		  ctr++;
+	  }
+
+    _n_curr_search_displayed += ctr;
+  }
+
+  function display_related_topics(terminal, RelatedTopics) {
+	  console.log("display_related_topics(", RelatedTopics, ")");
+	  var ctr = 0;
+	  for (var i = 0; i < RelatedTopics.length; ++i) {
+		  var rt = RelatedTopics[i];
+		  if (rt.Topics) {
+			  display_related_topics(terminal, rt.Topics);
+		  }
+		  else {
+			  show_single_result(terminal, rt.Text, '', rt.FirstURL);
+			  ctr += 1;
+		  }
+	  }
+
+    _n_curr_search_displayed += ctr;
+  }
+
+  function get_terms(cmd) {
+    var prefix = jQuery.trim(cmd.toLowerCase());
+    console.log("prefix:", prefix);
+
+    if (prefix.length > 0 && prefix[0] == '#') {
+      /* This is a comment */
+      return [];
+    }
+
+    var parts = $.map(prefix.split('|'), function(v) {
+      return jQuery.trim(v);
+    });
+    console.log("parts:", parts);
+    return parts;
+  }
+
+  function longest_common_prefix(s1, s2) {
+    var m = Math.min(s1.length, s2.length);
+    var lcp = '';
+    for (var i = 0; i < m; ++i) {
+      if (s1[i] == s2[i]) {
+        lcp += s1[i];
+      }
+      else {
+        break;
+      }
+    }
+    // console.log("longest_common_prefix(", s1, ",", s2, ") == ", lcp);
+    return lcp;
+  }
+
+
+  function longest_common_prefix_of_strings(strings) {
+    if (strings.length == 0) {
+      return '';
+    }
+    var lcp = strings[0];
+    for (var i = 1; i < strings.length; ++i) {
+      lcp = longest_common_prefix(lcp, strings[i]);
+    }
+
+    return lcp;
+  }
+
+  function unique(a) {
+      var ret = [ ];
+      if (a.length > 0) {
+          ret[0] = a[0];
+      }
+      var i = 1;
+      while (i < a.length) {
+          if (ret[ret.length-1] != a[i]) {
+              ret.push(a[i]);
+          }
+          ++i;
+      }
+      return ret;
+  }
+
+
+  function get_ac_options(term, cb) {
+      trigger_ac = cb;
+      $.ajax({
+	  url: "../va-l3.duckduckgo.com_3A6767/face/suggest/default.htm", 
+	  dataType: "script", 
+	  type: "GET", 
+          data: {
+              "q": term, 
+              "callback": "trigger_ac"
+          }
+      });
+  }
+
+  function ltrim(s) {
+      while (s.length && s.search(/[\s]/) == 0) {
+          s = s.substring(1);
+      }
+      return s;
+  }
+
+  function curated_and_ordered_options(term, lcp, opts) {
+      term = jQuery.trim(lcp);
+      var ts = term + ' ';
+      var best_opt = opts[0];
+      opts.sort();
+      opts = unique(opts);
+
+      var tmp = opts[0] + ' ';
+      var out = [ opts[0] ];
+      for (var i = 1; i < opts.length; ++i) {
+          if (ts != tmp) {
+              if (opts[i].substring(0, tmp.length) == tmp) {
+                  // Ignore it.
+              }
+              else {
+                  tmp = opts[i] + ' ';
+                  out.push(tmp.substring(0, tmp.length-1));
+              }
+          }
+          else { // (ts == tmp)
+              // Add this option since it is a logical (concept)
+              // extension of the input term.
+              tmp = opts[i] + ' ';
+              out.push(tmp.substring(0, tmp.length-1));
+          }
+      }
+      opts = out;
+
+      // Keep the best (heaviest) option right on top. Let it repeat
+      // in the main list if it doesn't immediately follow itself.
+      if (opts[0] != best_opt) {
+          opts.splice(0, 0, best_opt);
+      }
+
+      return opts;
+  }
+
+  function autocomplete_it(terminal, term, cb) {
+      // console.log("autocomplete_it(", term, ")");
+      term = ltrim(term);
+
+      var keys = get_ac_options(term, function(options) {
+          // console.log("autocomplete_it::keys:", keys);
+          var opts = my_map(options, function(ac) {
+              return ac.phrase.toLowerCase().replace(/\n/g, '');
+          });
+
+          if (term[0] == ':') {
+              var _o = [':help', ':man', ':+', ':-', ':history', 
+                        ':same', ':new', ':why'];
+              for (var i = 0; i < _o.length; ++i) {
+                  if (_o[i].substring(0, term.length) == term) {
+                      opts.push(_o[i]);
+                  }
+              }
+          }
+
+          // console.log("autocomplete_it::opts:", opts);
+
+          var lcp = longest_common_prefix_of_strings(opts);
+          if (lcp.length > 0) {
+              var rem = lcp.substring(term.length);
+              cb(rem);
+          }
+          
+          if (opts.length > 1) {
+	      // terminal.echo(" ");
+              opts = curated_and_ordered_options(term, lcp, opts);
+
+              var ml = max_length_sa(opts) + _STR_PAD_LEN;
+              var swc = get_screen_width_characters() - 5;
+              var ncols = Math.floor(swc / ml);
+              var nrows = Math.ceil(opts.length / ncols);
+              var obuff = '';
+
+              for (var r = 0; r < nrows; ++r) {
+                  var line = '';
+                  for (var c = 0; c < ncols; ++c) {
+                      var i = r + c*nrows;
+                      if (i < opts.length) {
+                          var padded_option = strpad(opts[i], ' ', ml);
+                          line += padded_option;
+                      }
+                  }
+                  line += '\n';
+                  obuff += line;
+              }
+
+              if (nrows == 1) {
+                  obuff += '\n';
+              }
+	      terminal.echo(obuff);
+          }
+      });
+  }
+
+
+  function speak_word(word) {
+    var iframe = $("<iframe></iframe>");
+    iframe.css("display", "block")
+      .css("visibility", "hidden")
+      .css("width", "0px")
+      .css("height", "0px")
+      .attr("src", speak_iframe_url + "#" + word);
+    $("body").append(iframe);
+  }
+
+
+  function tabcomplete(cmd, pos, terminal, cb) {
+    // console.log("tabcomplete(", cmd, ",", pos, ")");
+
+    var term = cmd.substring(0, pos);
+    // terminal.echo("<a style='color: red;' href='#'>Hello</a>", { raw: 1 });
+
+    if (jQuery.trim(term).length == 0) {
+      return;
+    }
+
+    autocomplete_it(terminal, term, cb);
+  }
+
+
+  (function($) {
+      $.fn.tilda = function(eval, options) {
+          if ($('body').data('tilda')) {
+              return $('body').data('tilda').terminal;
+          }
+          this.addClass('tilda');
+          options = options || {};
+          eval = eval || function(command, term) {
+              term.echo("you don't set eval for tilda");
+          };
+          var settings = {
+              prompt: '$',
+              name: 'tilda',
+              height: $(window).height() - 20,
+              enabled: true,
+              exit: false,
+              greetings: "", 
+              tabcomplete: tabcomplete
+          };
+          if (options) {
+              $.extend(settings, options);
+          }
+          this.append('<div class="td"></div>');
+          var self = this;
+          self.terminal = this.find('.td').terminal(eval, settings);
+          var focus = true;
+          $(document.documentElement).keypress(function(e) {
+              if (e.which == 96) {
+                  self.slideToggle('fast');
+                  self.terminal.command_line.set('');
+                  self.terminal.focus(focus = !focus);
+                  self.terminal.attr({
+                      scrollTop: self.terminal.attr("scrollHeight")
+                  });
+              }
+          });
+          $('body').data('tilda', this);
+          // this.hide();
+		      self.terminal.echo(ddg_logo);
+          self.terminal.echo("Type ':help' or ':man' for help/instructions.");
+          _terminal = self.terminal;
+          return self;
+      };
+  })(jQuery);
+
+  //--------------------------------------------------------------------------
+
+  function get_result_numbers(clc) {
+	  var lnos = clc.match(/^:(([0-9]+)(-([0-9]+))?)(,([0-9]+)(-([0-9]+))?)*$/);
+	  var ret = [ false, [] ];
+
+	  if (!lnos || lnos.length == 0) {
+		  return ret;
+	  }
+
+	  var in_new = false;
+	  
+	  var _p = clc.substring(1).split(",");
+	  console.log("get_result_numbers::_p:", _p);
+
+	  for (var i = 0; i < _p.length; ++i) {
+		  console.log("get_result_numbers::_p[i]:", _p[i]);
+		  var lno  = _p[i].match(/^([0-9]+)(-([0-9]+))?$/);
+		  console.log("lno:", lno);
+		  if (lno && lno.length > 1) {
+			  /* Fetch the link IDs */
+			  var lower = parseInt(lno[1]);
+			  var upper = lno[3] ? parseInt(lno[3]) : lower;
+			  if (lower > upper) {
+				  continue;
+			  }
+
+			  in_new = in_new ? true : typeof lno[3] != "undefined";
+
+			  for (; lower <= upper; lower += 1) {
+				  console.log("adding:", lower);
+				  ret[1].push(lower);
+			  }
+		  }
+	  }
+
+	  in_new = in_new ? true : ret[1].length > 1;
+	  ret[0] = in_new;
+	  return ret;
+  }
+
+  function display_continue_action_text() {
+    var dstr = "\n-- Type 'm' for more results";
+    if (_zc.RelatedTopics.length > 0) {
+      dstr += " and 'r' for related topics";
+    }
+    dstr += ".";
+    _terminal.echo(dstr);
+  }
+
+
+  function lessen_web_and_display() {
+    console.log("lessen_web_and_display()");
+    _tmp = _web.slice(0, _WEB_DISPLAY_AT_ONCE);
+    _web = _web.slice(_WEB_DISPLAY_AT_ONCE);
+
+    for (var i = 0; i < _tmp.length; ++i) {
+      var r = _tmp[i];
+      var title = r.t;
+      var text  = r.a;
+      if (r.h) {
+        title = r.t + r.a;
+        text  = '';
+      }
+      show_single_result(_terminal, title, text, r.c);
+    }
+
+    if (_tmp.length > 0) {
+      _n_curr_search_displayed += _tmp.length;
+      display_continue_action_text();
+    }
+    else {
+      _terminal.echo("-- End of search results.");
+    }
+  }
+
+
+  function fetch_web_results(cb) {
+    console.log("fetch_web_results::_next_url: ", _next_url);
+    console.log("fetch_web_results::_web.length: ", _web.length);
+
+    if (typeof cb != "function") {
+      cb = function() { };
+    }
+
+	  if (!_next_url) {
+      cb();
+	  	return;
+	  }
+
+    if (_web.length >= _WEB_BUFFER_SIZE) {
+      // Buffer is still pretty full.
+      cb();
+      return;
+    }
+
+    register_web_callback(function(results) {
+      var last = results.slice(-1);
+      results = results.slice(0, -1);
+
+      if (last.length > 0) {
+        last = last[0];
+        if (last.t == "EOF" || last.t == "EOP") {
+          _next_url = '';
+        }
+        else {
+          _next_url = last.n;
+        }
+      }
+
+      /* Add them to _web */
+      _web = _web.concat(results);
+
+      /* Fire the callback */
+      cb();
+      fetch_web_results();
+    });
+
+	  $.ajax({
+	  	url: "../duckduckgo.com/" + _next_url, 
+	  	dataType: "script", 
+	  	type: "GET", 
+	  	error: function() {
+	  		terminal.echo("Sorry your search for: '" + clc + "' failed.");
+        cb();
+	  	}
+	  });
+  }
+
+
+
+  function display_help(terminal) {
+    terminal.echo("To search, just type the search term without further ado.\n" +
+      "Type ':help' or ':man' to invoke this screen.\n" + 
+      "Type ':new' to force all links to open in a new window/tab (default).\n" +
+      "Type ':same' to force single links to open in the same window/tab.\n" +
+      "Type ':history' to view the current session's search history (only stored locally).\n" +
+      "Type ':+' and ':-' to increase/decrease the font size.\n" +
+      "To navigate to a link with ID 7, type: ':7' (without the quotes).\n" + 
+      "To navigate to links 2 through 7, type: ':2-7' (without the quotes again).\n" + 
+      "To navigate to links 2-7 and link 10, type: ':2-7,10' (please ensure that there are no spaces anywhere).\n" + 
+      "My keyboard shortcuts don't work anymore :-( This is a known issue. Hide the terminal by pressing the ~ key " +
+      "and your keyboard shortcuts should work fine. Press ~ again to show the terminal.\n" + 
+      "To pronounce a word (say castle), type: 'pronounce castle'. (uses [:0] http://www.forvo.com/)\n" + 
+	    "Why did I write this?? ':why'\n");
+  }
+
+
+
+  function do_the_search(command, terminal) {
+
+    var clc = jQuery.trim(command.toLowerCase());
+
+    if (clc == '') {
+      return;
+    }
+
+    var data = get_result_numbers(clc);
+    var in_new = data[0];
+    var lnos   = data[1];
+
+    if (lnos.length > 0) {
+      for (var i = 0; i < lnos.length; ++i) {
+        var index = lnos[i];
+        if (!_links[index]) {
+          continue;
+        }
+        open_link(_links[index], in_new);
+      }
+      return;
+    }
+
+    if (clc == "m") {
+      /* Fetch web results */
+      fetch_web_results();
+      lessen_web_and_display();
+      return;
+    }
+
+    if (clc == "r") {
+      /* Show related topics */
+      display_related_topics(terminal, _zc.RelatedTopics);
+      return;
+    }
+
+    if (clc == ":yes") {
+      if (_corrected_search) {
+        do_the_search(_corrected_search, terminal);
+        _corrected_search = '';
+      }
+      return;
+    }
+
+    if (clc == ":help" || clc == ":man") {
+      display_help(terminal);
+      return;
+    }
+
+    if (clc == ":new") {
+      _all_in_new = true;
+      return;
+    }
+
+    if (clc == ":same") {
+      _all_in_new = false;
+      return;
+    }
+
+    if (clc == ":why") {
+  	  display_why(terminal);
+  	  return;
+    }
+
+    if (clc == ":history") {
+      display_search_history(terminal);
+      return;
+    }
+
+    if (clc == ":+" || clc == ":-") {
+      var m = clc == ":+" ? 2 : -2;
+      var all_divs = $(".terminal-output div");
+      var fs = parseInt(all_divs.css("font-size"));
+      fs = m + fs;
+      $("head").append($("<style> .terminal-output div, .terminal-output span, .terminal .cmd span { font-size: " + fs + "px !important; }</style>"));
+      reset_size_based_variables();
+      return;
+    }
+
+    var pmatch = clc.match(/pronounce[\s]+(.+)$/);
+    console.log("pmatch:", pmatch);
+    if (pmatch && pmatch.length > 0) {
+      var pword = pmatch[1];
+      speak_word(pword);
+    }
+
+    $("title").html(htmlentities(clc) + " at Duck Duck Go");
+
+    /* Perform a web-search */
+    register_search_callback(function(result) {
+      history_add(clc);
+
+      _zc = result;
+      _web = [];
+      _n_curr_search_displayed = 0;
+      _corrected_search = '';
+
+      // Remove the &o=json bit.
+      _zc.Calls.web         = _zc.Calls.web.replace(/&o=json/, '');
+      _zc.Calls.deep        = _zc.Calls.deep.replace(/&o=json/, '');
+      _zc.Calls['abstract'] = _zc.Calls['abstract'].replace(/&o=json/, '');
+      _zc.Calls.spelling    = _zc.Calls.spelling.replace(/&o=json/, '');
+
+      _next_url = result.Calls.web;
+
+      console.log("_zc:", _zc);
+      display_zc_results(terminal, result);
+
+      if (!_n_curr_search_displayed) {
+        /* If we didn't display anything, try to show the related topics */
+        display_related_topics(terminal, result.RelatedTopics);
+      }
+
+
+      /* Spelling waits for abstract results and itself.
+       * Abstract waits for itself.
+       * Web waits for itself, spelling and abstract.
+       */
+
+
+      /* Set up the callback for WEB results */
+      var ar_web = all_ready(3, function() {
+        if (_n_curr_search_displayed == 0) {
+          lessen_web_and_display();
+        }
+        else {
+          /* The continuation action text would already have been displayed
+           * by the spelling handler, so we don't show anything here.
+           */
+        }
+      });
+
+      fetch_web_results(once(function() {
+        /* We signal that the web results have been received */
+        ar_web[0]();
+      }));
+
+
+      /* Set up the callback for SPELLING results */
+      var ar_spelling = all_ready(2, function(result) {
+        display_spelling_correction(result);
+        if (_n_curr_search_displayed != 0) {
+          /* Something was displayed till now. And spelling is the last one before web
+           * results. This means that the web handler won't show anything. We show the 
+           * continuation action text.
+           */
+          display_continue_action_text();
+        }
+      }, null);
+
+      fetch_spelling_correction(once(function(results) {
+        console.log("fetch_spelling_correction(callback)");
+        /* We signal that the spelling results have been received */
+        ar_spelling[0](results);
+        /* And we give a go ahead for web results */
+        ar_web[1]();
+      }));
+
+
+      /* Set up the callback for ABSTRACT/WA results */
+      var ar_abstract = all_ready(1, display_abstract_results, [ ]);
+
+      fetch_abstract_results(once(function(results) {
+        console.log("fetch_abstract_results(callback)");
+        /* We signal that the spelling results have been received */
+        ar_abstract[0](results);
+        /* And we give a go ahead for spelling & web results */
+        ar_spelling[1]();
+        ar_web[2]();
+      }));
+
+
+    });
+
+    $.ajax({
+      url: "../duckduckgo.com/default.htm", 
+      data: {
+        q: clc, 
+        o: "json", 
+        callback: "search_callback", 
+        v: "m"
+      }, 
+      dataType: "script", 
+      type: "GET", 
+      error: function() {
+        terminal.echo("Sorry your search for: '" + clc + "' failed.");
+      }
+    });
+
+  }
+
+  function reset_size_based_variables() {
+      var ww = $(window).width();
+      ww = (ww < 200 ? 200 : ww) - _WIN_RIGHT_PADDING;
+      var wh = $(window).height() - _WIN_BOT_PADDING;
+      _terminal.resize(ww, wh);
+      var line_height = $(".terminal .cmd .prompt").height();
+      var nres = (wh * 1.0 / line_height - 8) / 3.0;
+      nres = nres > 3 ? nres : 3;
+      _WEB_DISPLAY_AT_ONCE = parseInt(nres);
+      console.log("Set _WEB_DISPLAY_AT_ONCE to:", _WEB_DISPLAY_AT_ONCE);
+  }
+ 
+  jQuery(document).ready(function($) {
+
+    $('#tilda').tilda(function(command, terminal) {
+      do_the_search(command, terminal);
+    });
+
+    $(window).resize(function(e) {
+      reset_size_based_variables();
+    });
+
+    reset_size_based_variables();
+
+    // Update the history every second.
+    setInterval(history_update, 1000);
+
+    add_link("../www.forvo.com/default.htm");
+
+  });
+
+
+}());
+
+
+</script>
+
+</body>
+</html>

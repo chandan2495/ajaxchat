@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Desktop Notification Test</title>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="jquery.desknoty.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        $('button#noti').click(function(){
+            $.desknoty({
+                icon: "http://www.google.com/landing/chrome/ugc/chrome-icon.jpg",
+                title: "My notification",
+                body: "Woot this is awesome"
+ 
+            });
+        });
+        $('button#noti-html').click(function(){
+            $.desknoty({
+                type: "html",
+                url: "http://www.google.co.uk/",
+                sticky: true
+            });
+        });
+    });
+    </script>
+</head>
+<body>
+<button id="noti">Call notification</button>
+<button id="noti-html">Call notification (HTML)</button>
+</body>
+</html>

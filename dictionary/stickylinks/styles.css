@@ -1,0 +1,51 @@
+.main {
+	font-family: Arial, Arial, Helvetica, sans-serif;
+}
+
+.heading {
+	color: #FF6600;
+	margin-top:2em;
+	margin-bottom:-3px;
+}
+
+.bookmark {
+	text-align:right;
+	font-size:small;
+}
+
+.bookmark a:link {
+	color: #FF6600;
+	font-weight: bold;
+	text-decoration:none;
+}
+
+.bookmark a:visited {
+	color: #FF6600;
+	font-weight: bold;
+	text-decoration:none;
+}
+
+.header_main {
+	overflow: hidden;
+	background-color: #FF6600;
+	color: white;
+}
+
+table.footer {
+	width:100%;
+	background-color:#FF6600;
+}
+
+table.footerContentTable {
+	font-size:small;
+	font-weight:bold;
+	width:36em;
+}
+
+table.footer a:visited {
+	color:white;
+}
+
+table.footer a:link {
+	color:white;
+}

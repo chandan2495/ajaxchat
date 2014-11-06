@@ -1,0 +1,157 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Apr 6, 2014, 7:53:58 PM
+    Author     : chandan2495
+*/
+
+body{
+    background-image: url('images/background1.jpg');
+}
+
+.result{
+    font-weight: bold;
+}
+
+.usr-sel-text{
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.login1{
+    width:30%;
+}
+
+.register1{
+}
+
+
+.delete1{
+    float: right;
+}
+
+.delete{
+    text-align: right;
+}
+
+
+#icon1{
+    width: 30px;
+    height: 30px;
+}
+
+#chat_text{
+    width:100%;
+    margin-bottom: 10px;
+}
+
+
+#summarizer{
+    background-color:#2F4154;
+    border:1px solid black;
+    width:23%;
+    height:600px;
+    left: 690px;
+    top: 83px;
+    color:white;
+}
+
+#userlist{
+    background-color:#2F4154;
+    border:1px solid black;
+    width:268px;
+    height:270px;
+    position: absolute;
+    left: 75%;
+    top: 83px;
+    color:white;
+}
+
+#userlistsub{
+    background-color:#2F4154;
+    border:1px solid black;
+    width:268px;
+    height:213px;
+    position: absolute;
+    left: 0%;
+    top: 55px;
+    color:white;
+}
+
+#summarizersup{
+    background-color:#2F4154;
+    border:1px solid black;
+    width:22%;
+    height:600px;
+    position: absolute;
+    left: 52%;
+    top: 83px;
+    color:white;
+}
+
+#summarizer{
+    background-color:#2F4154;
+    border:1px solid black;
+    width:100%;
+    height:544px;
+    position: absolute;
+    left: 0%;
+    top: 55px;
+    color:white;
+}
+
+#chatbox{
+    background-color:#eee;
+    border:none;
+    width:100%;
+    height:544px;
+}
+
+#chat_password{
+    margin-bottom: 15px;
+}
+
+#chatbox #initial{
+    margin-top: 20%;
+    margin:auto;
+    width:50%;
+    display:none;
+    
+}
+#chatbox #primary{
+    display:none;
+}
+#chatbox #primary #window{
+    width:100%;
+    height: 100%;
+    background-color: #fff;
+    border-bottom: 1px solid #aaa;
+    overflow: scroll;
+    overflow-x: hidden;
+    //margin-top: 80px;
+}
+
+#chatbox #primary #window .list1{
+    background-color: #2F4154;
+    padding: 5px;
+    border-bottom: 1px solid #aaa;
+    color:white;
+}
+
+#chatbox #primary #window .list2{
+    background-color: #2F4154;
+    padding: 5px;
+    border-bottom: 1px solid #aaa;
+    color:white;
+}
+
+#form
+{
+    width:100%;
+    position: relative;
+}
+
+

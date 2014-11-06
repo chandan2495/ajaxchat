@@ -1,0 +1,81 @@
+<html>
+<head>
+  <title>How does StickyLinks work?</title>
+  <link rel="stylesheet" href="styles.css" type="text/css" media="all" />
+  <link href='favicon.ico' rel='icon' type='image/vnd.microsoft.icon' />
+</head>
+
+<body class="main">
+
+<center>
+  <h2 class="heading">StickyLinks: Let others see exactly what you see on a page</h2>
+</center>
+
+<table border="0" style="width:40%;">
+<tr>
+  <td><a href="index.php">Home</a></td>
+</tr>
+</table>
+<br/>
+
+<p>
+When you enter a web-site URL to stickify, StickyLinks checks to see
+if a snapshot (currently) up to 25 minutes ago exists or not. If so,
+it shows you that sticky url, or else it creates a new sticky URL and
+shows you that one.
+</p>
+<br/>
+
+<ul>
+
+<li><b>Does StickyLinks download images/CSS/javascript from the site?</b>
+<p>No. StickyLinks just downloads the HTML content of the page whose
+URL is specified, and converts all relative links to absolute ones so
+that the external images/CSS/javascript is fetched from the original
+site. What this means is that your page will look broken if any of
+these above external entities changes. What it also means is that if
+the developer fixes some bugs in these external dependencies, you'll
+be able to use the fixed code for free!!
+</p><br/>
+</li>
+
+<li>
+<b>Does StickyLinks follow 302 redirects?</b>
+<p>Yes</p><br/></li>
+
+<li>
+<b>Will StickyLinks work for all sites?</b>
+<p>No, sites that generate the page data dynamically <em>may</em> not
+work well. Having said this, more often than not, you will see the
+page correctly since external javascript will be loaded. Also sites
+that require you to <b>login</b> will not work with StickyLinks since
+the StickyLinks server will not be able to login on your
+behalf.</p><br/></li>
+
+
+<li>
+<b>Can web-sites block StickyLinks?</b>
+<p>We currently use <em>Mozilla/4.0</em> as the User-Agent string to
+make sure that only HTML content is served by the web-site <em>as far
+as possible</em>. However, most web-sites don't serve content based on
+the User-Agent. Furthermore, the HTTP <em>Referer</em> tag is set to a
+value other than the original web-site's URL when external
+images/CSS/javascript is fetched from the site. A site administrator
+may block requests that either don't have a Referer set, or have a
+Referer other than the original site's URL.</p><br/></li>
+
+
+<li>
+<b>I am a site admin and I want to remove old versions of my site's page from StickyLinks</b>
+<p>Sure. Please drop me an email at <em>dhruvbird at gmail dot
+com</em> with a subject line <em>StickyLinks: Request Removal</em>,
+and mention in the email which web-site it is that you want
+removed. This might take a while, but it will be done. The old links
+will not go dead, but will point to some reasonable error
+message, and a link to the original page.</p><br/></li>
+
+</ul>
+
+
+</body>
+</html>

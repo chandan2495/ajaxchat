@@ -1,0 +1,97 @@
+<html>
+<head>
+  <title>StickyLinks: A URL snapshotting service</title>
+  <link rel="stylesheet" href="styles.css" type="text/css" media="all" />
+  <link rel="stylesheet" href="../../ajax.googleapis.com/ajax/libs/jqueryui/1.7.2/themes/base/jquery-ui.css" type="text/css"/>
+  <link href='favicon.ico' rel='icon' type='image/vnd.microsoft.icon' />
+  <script src="../../www.google.com/jsapi" type="text/javascript"></script>
+  <script type="text/javascript" language="javascript">
+    google.load("jquery", "1.3.2");
+    google.load("jqueryui", "1.7.2");
+    google.setOnLoadCallback(init);
+    function init(){
+      $("#startDate").datepicker({changeMonth: true, changeYear:true, defaultDate: 0});
+    }
+  </script>
+</head>
+
+<body class="main">
+
+
+<center>
+  <table border="0">
+  <tr>
+    <td><h2 class="heading">StickyLinks: Let others see exactly what you see on a page</h2></td>
+  </tr>
+  <tr>
+    <td class="bookmark">Create Bookmarklet: <a href="javascript:(function(){ x=document.location; document.location='@snapshot=1&tosticky=1&url='+escape(x);})();" 
+           onClick="alert('To create a shortcut, click and drag this link to your Browser\'s Bookmarks'); return false;" 
+           title="Stickify" >Stickify</a></td>
+  </tr>
+  </table>
+
+Sorry, we weren't able to process your request. Please try again later.<br/>
+Reason: Lost connection to MySQL server at 'reading initial communication packet', system error: 111<br/>
+</tr>
+</table>
+<br/><br/>
+
+<form action="index.php" method="GET">
+<br/>
+<table border="0">
+<tr>
+    <td><label for="url"> URL:</label>
+    <input id="url" type="text" name="url" style="width:30em; height:1.9em; " value="" />
+    <input type="submit" value="Stickify" name="snapshot" style="height: 1.9em; width: 10em; " />
+  </td>
+</tr>
+
+<tr><td style="height:0.5em;"></td></tr>
+
+<tr>
+  <td style="text-align:center;">
+      <label for="startDate">Browse versions before date:</label>
+    <input id="startDate" name="startDate" 
+      value="" 
+      style="width:7em; " />
+    &nbsp;&nbsp;
+    <input type="submit" value="Browse History" name="history" style="height: 1.9em; width: 10em; " />
+  </td>
+</tr>
+</table>
+
+</form>
+
+
+</center>
+
+<br/>
+
+<center>
+<table border="0" class="footer">
+<tr><td><center>
+  <table border="0" class="footerContentTable">
+  <tr>
+    <td><a href="what_is.html">What is StickyLinks?</a></td>
+    <td><a href="how_it_works.html">How it works</a></td>
+    <td><a href="plugins.html">Plugins</a></td>
+    <td><a href="credits.html">Credits</a></td>
+  </tr>
+  </table>
+</center></td></tr>
+</table>
+
+</center>
+
+<!--ipt type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</scri-->
+<!--ipt type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-12252022-1");
+pageTracker._trackPageview();
+} catch(err) {}</scri-->
+
+</body>
+</html>

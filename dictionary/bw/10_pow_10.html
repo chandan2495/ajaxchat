@@ -1,0 +1,92 @@
+<html>
+<head>
+  <title>Cellsweeper</title>
+  <link rel="stylesheet" type="text/css" href="styles.css" />
+  <head profile="http://www.w3.org/2005/10/profile">
+  <link rel="icon" type="image/png" href="favicon.png">
+  <script src="../js/jquery-1.4.4.min.js"></script>
+</head>
+
+<body>
+<div id="content">
+<center>
+  <h1>4. Cellsweeper</h1>
+</center>
+
+<p>
+Given an <i>n X n</i> matrix, you need to find the maximum sum of the elements 
+of a selection such that a selection may contain only 1 element from each row 
+or column.
+</p>
+<p>i.e. You may not select an element from a row or column if you have 
+already selected an element that lies in that row or column.
+</p>
+
+<div class="section">Interactive Example: (<span class="reset-span">reset</span>)</div>
+<table class="cellsweeper-table" border="1" cellspacing="0">
+	<tr><td>1</td><td>8</td><td>6</td><td>25</td></tr>
+	<tr><td>15</td><td>7</td><td>8</td><td>3</td></tr>
+	<tr><td>9</td><td>30</td><td>2</td><td>8</td></tr>
+	<tr><td>5</td><td>6</td><td>20</td><td>4</td></tr>
+</table>
+
+<div class="section">Sum till now: <span id="sum-till-now">0</span></div>
+
+</div>
+<script type="text/javascript">
+function get_self_index(e) {
+	var pos = 0;
+	$(e).parent().children().each(function(i, v) {
+		// console.log(arguments);
+		if (this == e) {
+			pos = i;
+		}
+	});
+	return pos;
+}
+
+$().ready(function() {
+
+	var ssum = 0;
+
+	$("span.reset-span").click(function() {
+		/* Fix everyone */
+		$(".cellsweeper-table td").css("background-color", '');
+		ssum = 0;
+		$("#sum-till-now").html(ssum);
+	});
+
+	$(".cellsweeper-table td").click(function(e) {
+		// console.log($(this).css("background-color"));
+		if ($(this).css("background-color") == "rgb(238, 238, 238)") {
+			return;
+		}
+
+		var n = get_self_index(this) + 1;
+		ssum += parseInt($(this).html());
+
+		/* Fix columns & rows */
+		$(".cellsweeper-table tr").find(":nth-child(" + n + ")")
+			.add($(this).parent().find("td"))
+			.css("background-color", "#EEEEEE");
+
+		$("#sum-till-now").html(ssum);
+	});
+});
+</script>
+<div style="height: 250px;">&nbsp;</div>
+
+<!--ipt type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-12252022-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</scri-->
+
+</body>
+</html>

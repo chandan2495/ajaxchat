@@ -1,0 +1,778 @@
+<html>
+<head>
+  
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+  <meta content="Dhruv Matani" name="author">
+  <head profile="http://www.w3.org/2005/10/profile">
+  <link rel="icon" type="image/png" href="../favicon.png">
+  <link rel="stylesheet" type="text/css" href="../css/ui.css" />
+  <link rel="stylesheet" type="text/css" href="css/jquery.zero_clickable.css" />
+  <link rel="stylesheet" type="text/css" href="../css/styles.css" />
+  <link rel="stylesheet" href="../css/jquery.terminal.css"/>
+
+  <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js"></script>
+  -->
+    <script type="text/javascript" src="../js/alljs.php@v=1317499866"></script>
+  <script type="text/javascript" src="js/jquery.zero_clickable.js"></script>
+  <title>Zero Click jQuery Search Widget</title>
+
+  <style type="text/css">
+  body {
+    font-family: 'Segoe UI',Arial,sans-serif;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+    color: #666666; /* FF9900 */
+    background-color: #FFFFFF;
+    padding-left: 20px;
+    padding-right: 20px;
+  }
+  .section {
+    font-size: 22px;
+    font-weight: bold;
+    padding-top: 15px;
+    border-bottom: 1px solid #FF9944;
+  }
+  .subsection {
+    padding-top: 10px;
+    font-weight: bold;
+  }
+  .actions {
+    font-family: Helvetica, cursive, 'Comic Sans MS', Arial;
+  }
+  #a1 {
+    background-color: transparent;
+  }
+  #a2 {
+    background-color: #FFFFFF;
+  }
+  #a3 {
+    background-color: #FFCEDE;
+  }
+  pre {
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  .code-title {
+    text-decoration: underline;
+  }
+  pre.code {
+    background-color:#FFEE99;
+    border-left:2px solid grey;
+    color:black;
+    margin-left:20px;
+    padding-left:20px;
+    width:800px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-family: monospace;
+    padding-top: 5px;
+    padding-bottom: 5px;
+  }
+  ol > li {
+    margin-top: 15px;
+  }
+</style>
+</head>
+
+
+<body>
+
+<center>
+  <h1>Zero Click jQuery Search Widget</h1>
+</center>
+
+
+<div class="section">Why do I need this widget?</div>
+<p>
+  Authors generally write browser plugins for letting people define the meanings of certain words or perform easy and quick web searches of selected text. It is easy to see that the same features are not available to the user once he/she starts using a different browser or visits that web-page on a different browser/machine that does not have that particular extension/plugin/add-on installed. This is frustrating for the user who might have gotten used to the conveniences provided by that extension.
+</p>
+
+<p>
+  What I would like to propose is a widget that web-site authors can embed into their web-pages so that users:
+  <ol>
+    <li>Need not externally install extentions for defining words or concepts or getting more information about something they want to know more about.</li>
+    <li>Get a consistent experience across all browsers and machines that they use. So, if one user sees a page in a certain way, he/she can expect others to also see it in the same way notwithstanding the Browser or Operating System used.</li>
+  </ol>
+</p>
+
+<div class="section">What is the <i>zero click</i> widget?</div>
+<p>
+  The <i>zero click</i> search widget searches for a block of selected text using Duck Duck Go's public <a href="../../duckduckgo.com/api.html">API</a> and displays the results in an iframe. The result iframe is highly configurable via configuration parameters.
+</p>
+
+
+
+<div class="section">Demos</div>
+<p>
+  Select some text in the paragraphs below to see how the widget works and looks like.
+</p>
+
+<ol>
+  <li>
+    <div class="subsection">Transparent widget</div>
+    <p id="p1">
+    An operating system (OS) is software, consisting of programs and data, that runs on computers and manages the computer hardware[1] and provides common services for efficient execution of various application software.
+    For hardware functions such as input and output and memory allocation, the operating system acts as an intermediary between application programs and the computer hardware,[2][3] although the application code is usually executed directly by the hardware, but will frequently call the OS or be interrupted by it. Operating systems are found on almost any device that contains a computer—from cellular phones and video game consoles to supercomputers and web servers.
+    Examples of popular modern operating systems for personal computers are Microsoft Windows, Mac OS X, and GNU/Linux.[4]
+    </p>
+
+    <span class='code-title'>Javascript Code:</span><pre>$("#p1").zero_clickable({
+  id: "a1", 
+  singleton: true, 
+  clickout: true, 
+  css: { color: "#666666", "font-family": "monospace" }
+});
+      </pre>
+  </li>
+
+  <li>
+    <div class="subsection">Widget with a white background</div>
+    <p id="p2">
+    Early computers were built to perform a series of single tasks, like a calculator. Operating systems did not exist in their modern and more complex forms until the early 1960s.[5]  Some operating system features were developed in the 1950s, such as monitor programs that could automatically run different application programs in succession to speed up processing. Hardware features were added that enabled use of runtime libraries, interrupts, and parallel processing. When personal computers by companies such as Apple Inc., Atari, IBM and Amiga became popular in the 1980s, vendors added operating system features that had previously become widely used on mainframe and mini computers. Later, many features such as graphical user interface were developed specifically for personal computer operating systems.
+    </p>
+
+    <span class='code-title'>Javascript Code:</span><pre>$("#p2").zero_clickable({
+  id: "a2", 
+  singleton: true, 
+  clickout: true, 
+  proximity: false, 
+  css: { color: "#666666" }, 
+  onbeforeshow: function(a) { alert("About to show: " + a.attr("id")); }, 
+  onbeforeclose: function(a) { alert("About to remove: " + a.attr("id")); }
+});
+      </pre>
+
+    <span class='code-title'>CSS (stylesheet):</span><pre>#a2 {
+  background-color: #FFFFFF;
+}
+</pre>
+  </li>
+
+  <li>
+    <div class="subsection">Widget with a violet font and light violet background</div>
+    <p id="p3">
+    An operating system consists of many parts. One of the most important components is the kernel, which controls low-level processes that the average user usually cannot see: it controls how memory is read and written, the order in which processes are executed, how information is received and sent by devices like the monitor, keyboard and mouse, and decides how to interpret information received from networks. The user interface is a component that interacts with the computer user directly, allowing them to control and use programs. The user interface may be graphical with icons and a desktop, or textual, with a command line. Application programming interfaces provide services and code libraries that let applications developers write modular code reusing well defined programming sequences in user space libraries or in the operating system itself. Which features are considered part of the operating system is defined differently in various operating systems. For example, Microsoft Windows considers its user interface to be part of the operating system, while many versions of Linux do not.
+    </p>
+
+    <a name="p3-js-code"></a>
+    <span class='code-title'>Javascript Code:</span><pre>$("#p3").zero_clickable({
+  id: "a3", 
+  singleton: true, 
+  clickout: true, 
+  css: { color: "purple", "font-family": "'Segoe UI',Arial,sans-serif" }
+});
+      </pre>
+
+    <span class='code-title'>CSS (stylesheet):</span><pre>#a3 {
+  background-color: #FFCEDE;
+}
+    </pre>
+  </li>
+
+</ul>
+
+
+<div class="section">Widget Quick Intro.</div>
+<p>
+  To make any block of text <i>Zero Clickable</i>, you need to do the following:
+</p>
+
+<ol>
+  <li>Include jQuery core, jQuery UI and the <i>zero clickable</i> jQuery plugin in the <i>&lt;head&gt;</i> section of your HTML file.
+    <pre class="code">
+&lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.7/jquery-ui.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src=&quot;http://dhruvbird.com/ddb/js/jquery.zero_clickable.min.js&quot;&gt;&lt;/script&gt;</pre>
+  </li>
+
+  <li>
+    In a <i>&lt;script&gt;</i> tag, when the document is completely loaded, select the div (or element) containing the text you want to make <i>zero clickable</i> using jQuery's selector mechanism and then call <i>zero_clickable(params)</i> on it where, params should be a hash (object) containing one or more of the following configuration parameters.
+    <pre class="code">
+&lt;script type=&quot;text/javascript&quot;&gt;
+$().ready(function() {
+  $(&quot;#p1&quot;).zero_clickable({
+    id: &quot;a1&quot;, 
+    singleton: true, 
+    clickout: true, 
+    css: { color: &quot;#666666&quot;, &quot;font-family&quot;: &quot;monospace&quot; }
+  });
+});
+&lt;/script&gt;</pre>
+    In the example above, a DOM element with an id of <i>p1</i> is the element that contains the text we want to make zero clickable.
+  </li>
+
+  <li>
+    In the <i>&lt;head&gt;</i> section of your HTML file, you will also need to include the following basic CSS for styling the widget. You may replace it with your own custom styling.
+    <pre class="code">
+&lt;link rel=&quot;stylesheet&quot; type=&quot;text/css&quot; href=&quot;css/jquery.zero_clickable.css&quot; /&gt;
+&lt;style type=&quot;text/css&quot;&gt;
+  #a1 {
+    background-color: #FFFFFF;
+  }
+&lt;/style&gt;</pre>
+  </li>
+      
+</ol>
+
+<div class="section">Widget parameters</div>
+<p>
+  The following configurables may be passed to the widget constructor (the zero_clickable() method) to customize the behaviour and look &amp; feel of the wedget. All the fields below are optional.
+</p>
+
+<ol>
+  <li><b>id</b>: An <b>id</b> to assign to the div that will show the zero 
+	  click info. This can be used for selecting the div for styling purposes.
+	  <br/>Default: (empty)</li>
+  <li><b>unpunct</b>: (true/false) Remove punctuations from the selected text if true. Default: false</li>
+  <li><b>max-length</b>: Ignore selected text if number of selected characters 
+	  are greater than max-length. <br/>Default: 60</li>
+  <li><b>singleton</b>: (true/false) Will allow ONLY 1 instance of this widget on 
+      this page if set to true. The value of 'singleton' must be the SAME
+      for ALL invocations of this widget on the same page. The behaviour of 
+      the widget is undefined if you use different paramaters when invoked 
+      on the same page. <br/>Default: false</li>
+  <li><b>clickout</b>: (true/false) Clicking outside the widget closes it if true.
+      The value of clickout is meaningful ONLY if the 'singleton' flag is 
+      set to true. <br/>Default: false</li>
+  <li><b>proximity</b>: (true/false) If true, changes the opacity of the widget 
+      based on widget position and the position of the mouse pointer. The value 
+      of proximity holds true only if singleton is set to true. If 
+      'proximity' is set to true and 'singleton' is set to false, 
+      then the behaviour of this widget can not be defined. Just like 
+      'singleton', if you specify a value for 'proximity' once on a page, 
+      you MUST use the same value on all invocations on that page. 
+	  <br/>Default: true</li>
+  <li><b>cornered</b>: (true/false). If true, the widget will try to start 
+      itself at one of the corners of the screen such that it is not under 
+      the mouse. sandesh247 suggested this since most selections would be
+      to copy text and not to define a term. Thanks Sandy!! :-) :-)
+      <br/>Default: true</li>
+  <li><b>error-string</b>: The error string to 
+      display in the iframe if no matches were found.</li>
+  <li><b>css</b>: Other css attributes. The attributes that are forwarded 
+	(if using iframe) are: color, font-faimly. By default, color and 
+	font-family are copied from the element that has been made 
+	<i>zero_clickable</i>. <br/>Default: (empty)</li>
+</ol>
+
+
+<div class="section">Download</div>
+<ol>
+  <li><a href="js/jquery.zero_clickable.js">Unminified</a> (12kB)</li>
+  <li><a href="js/jquery.zero_clickable.min.js">Minified</a> (4kB)</li>
+</ol>
+
+
+
+<div style="height: 250px;">&nbsp;</div>
+
+
+
+<script type="text/javascript">
+  $().ready(function() {
+
+    $("#p1").zero_clickable({
+      id: "a1", 
+      singleton: true, 
+      clickout: true, 
+      css: { color: "#666666", "font-family": "monospace" }
+    });
+
+    $("#p2").zero_clickable({
+      id: "a2", 
+      singleton: true, 
+      clickout: true, 
+      proximity: false, 
+      css: { color: "#666666" }, 
+      onbeforeshow: function(a) { alert("About to show: " + a.attr("id")); }, 
+      onbeforeclose: function(a) { alert("About to remove: " + a.attr("id")); }
+    });
+
+    $("#p3").zero_clickable({
+      id: "a3", 
+      singleton: true, 
+      clickout: true, 
+      css: { color: "purple", "font-family": "'Segoe UI',Arial,sans-serif" }
+    });
+
+  });
+</script>
+
+<!--ipt type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-12252022-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</scri-->
+<div id="customize">
+  <div class="c-option">
+    <div class="c-title">Background Color:</div>
+    <div class="c-selections">
+      <span class='sel-span' id="sel-bg-1">&nbsp;</span>
+      <span class='sel-span' id="sel-bg-2">&nbsp;</span>
+      <span class='sel-span' id="sel-bg-3">&nbsp;</span>
+      <span class='sel-span' id="sel-bg-4">&nbsp;</span>
+    </div>
+  </div>
+  <div class="c-option">
+    <div class="c-title">Font Color:</div>
+    <div class="c-selections">
+      <span class='sel-span' id="sel-fg-1">&nbsp;</span>
+      <span class='sel-span' id="sel-fg-2">&nbsp;</span>
+      <span class='sel-span' id="sel-fg-3">&nbsp;</span>
+      <span class='sel-span' id="sel-fg-4">&nbsp;</span>
+    </div>
+  </div>
+  <div class="c-option">
+    <div class="c-title">Font Family:</div>
+    <div class="c-selections">
+      <span class='sel-span' id="sel-ff-1">AaBb</span>
+      <span class='sel-span' id="sel-ff-2">AaBb</span>
+      <span class='sel-span' id="sel-ff-3">AaBb</span>
+      <span class='sel-span' id="sel-ff-4">AaBb</span>
+    </div>
+  </div>
+  <div class="c-option">
+    <div class="c-title">Font Size:</div>
+    <div class="c-selections">
+      <span class='sel-span' id="sel-fs-1">14px</span>
+      <span class='sel-span' id="sel-fs-2">16px</span>
+      <span class='sel-span' id="sel-fs-3">18px</span>
+      <span class='sel-span' id="sel-fs-4">20px</span>
+    </div>
+  </div>
+  <div class="c-option">
+    <div class="c-title">Line Height:</div>
+    <div class="c-selections">
+      <span class='sel-span' id="sel-lh-1">125%</span>
+      <span class='sel-span' id="sel-lh-2">150%</span>
+      <span class='sel-span' id="sel-lh-3">175%</span>
+      <span class='sel-span' id="sel-lh-4">200%</span>
+    </div>
+  </div>
+</div>
+
+
+<script type="text/javascript">
+
+  function range(s, e, step) {
+    if (!step) {
+      step = 1;
+    }
+    _r = [ ];
+    for (; s < e; s += step) {
+      _r.push(s);
+    }
+    return _r;
+  }
+
+  function concat_fun(x) {
+    return function(y) {
+      // console.log("x+y:", x+y);
+      return x + y;
+    };
+  }
+
+
+  function set_css_from_cookies(attrs) {
+    $.each(attrs, function(i, attr) {
+      if ($.cookie(attr)) {
+        $("body").css(attr, $.cookie(attr));
+      }
+    });
+  }
+
+  function property_setter_fun(attr, getter) {
+    return function(i, v) {
+      $(v).click(function() {
+        /* Set click handler and the cookie */
+        var _v = null;
+        if (getter) {
+          _v = getter(this);
+        }
+        else {
+          _v = $(this).css(attr);
+        }
+        $("body").css(attr, _v);
+        $.cookie(attr, _v);
+      });
+    };
+  }
+      
+
+  $().ready(function() {
+    set_css_from_cookies(['background-color', 'color', 'font-family', 'font-size', 'line-height']);
+
+    var cDialog = $("#customize").dialog({
+      autoOpen: false,
+      title: "Choose a Style", 
+      resizable: false
+    });
+
+    $(".customize-link").click(function() {
+      cDialog.dialog("open");
+    });
+
+    // console.log($.map(range(1, 5), concat_fun("#sel-bg-")));
+
+    $.each($.map(range(1, 5), concat_fun("#sel-bg-")), 
+           property_setter_fun("background-color"));
+
+    $.each($.map(range(1, 5), concat_fun("#sel-fg-")), 
+           property_setter_fun("color"));
+
+    $.each($.map(range(1, 5), concat_fun("#sel-ff-")), 
+           property_setter_fun("font-family"));
+
+    $.each($.map(range(1, 5), concat_fun("#sel-fs-")), 
+           property_setter_fun("font-size"));
+
+    $.each($.map(range(1, 5), concat_fun("#sel-lh-")), 
+           property_setter_fun("line-height", function(t) {
+             return $(t).text();
+    }));
+
+  });
+
+</script>
+<div id="tilda"></div>
+
+<script type="text/javascript">
+
+(function() {
+
+  var env = {
+    target: $.cookie("target") || "_top"
+  };
+
+  function open_link(url) {
+    // console.log(env);
+    if (env.target == "_top") {
+      window.location = url;
+    }
+    else {
+      window.open(url);
+    }
+  }
+
+  function get_keys(o) {
+    var r = [ ];
+    for (var k in o) {
+      r.push(k);
+    }
+    return r;
+  }
+
+  function strpad(s, p, len) {
+    while (s.length < len) {
+      s += p;
+    }
+    return s;
+  }
+
+  function max_length_sa(a) {
+    var _l = $.map(a, function(v) {
+      return v.length;
+    });
+    var _mlen = Math.max.apply(Math, _l);
+    return _mlen;
+  }
+
+
+
+  var cmds = {
+    ls: function() {
+      return this.help();
+    }, 
+    help: function() {
+      var _cmds = get_keys(cmds);
+      var _ml = max_length_sa(_cmds);
+      var screen_width = 120;
+      var extra = 4;
+      var s = "";
+      var ret = [ ];
+
+      for (var i = 0; i < _cmds.length; ++i) {
+        var _s = s + strpad(_cmds[i], ' ', _ml + extra);
+        if (_s.length > screen_width) {
+          --i;
+          ret.push(s);
+          s = "";
+        }
+        else {
+          s = _s;
+        }
+      }
+      if (s.length > 0) {
+        ret.push(s);
+      }
+
+      return ret.join("\n");
+        // "You can navigate this site using the following commands (or their unique prefixes):\n" + 
+    }, 
+    twitter: function() {
+      open_link("../../twitter.com/dhruvbird/default.htm");
+      return "Redirecting you to my twitter page...";
+    }, 
+    facebook: function() {
+      open_link("../../facebook.com/dhruvbird/default.htm");
+      return "Redirecting you to my facebook page...";
+    }, 
+    blog: function() {
+      open_link("../../dhruvbird.blogspot.com/default.htm");
+      return "Redirecting you to my personal blog...";
+    }, 
+	linkedin: function() {
+		open_link("../../in.linkedin.com/pub/dhruv-matani/7/250/942");
+		return 'Redirecting you to my Linked In page...';
+	},
+    "traceitfor.me": function() {
+      open_link("../../traceitfor.me/default.htm");
+      return "Trace your ideas online!!";
+    }, 
+	"sliced_bread": function() {
+      open_link("../greatest.html");
+      return "What is the greatest thing since sliced bread? You'll find out in a bit...";
+    },
+	problems: function() {
+      open_link("../problems.html");
+      return "Research...";
+    }, 
+	dyslexia: function() {
+      open_link("../dyslexia.html");
+      return "Dyslexia friendly";
+    }, 
+    puzzles: function() {
+      open_link("../puzzles.html");
+      return "Stumped??";
+    }, 
+    environment: function() {
+      open_link("../conserving.html");
+      return "Because we want to see a better tomorrow...";
+    }, 
+    projects: function() {
+      open_link("../projects.html");
+      return "I code, therefore I am...";
+    }, 
+    hacking: function() {
+      open_link("../hacking.html");
+      return "(this is the best part!!)...";
+    }, 
+    liblyric: function() {
+      open_link("../liblyric.html");
+      return "Lyrics search made easy...";
+    }, 
+    cv: function() {
+      open_link("../resume.html");
+      return "Resume/CV";
+    }, 
+    papers: function() {
+      open_link("../papers.html");
+      return "Papers published and otherwise";
+    }, 
+    teaching: function() {
+      open_link("../teaching.html");
+      return '"Tell me and I\'ll forget; show me and I may remember; involve me and I\'ll understand."';
+    },
+	jquery_zero_click: function() {
+		open_link("zc.html");
+		return 'A nifty drop-in for content authors and publishers';
+	},
+	recipes: function() {
+		open_link("../../dhruvbird.blogspot.com/search/label/recipe");
+		return 'Select delectable open-source for your gastric vices ;)';
+	},
+	grecs: function() {
+		open_link("../../grecs.wikispaces.com/default.htm");
+		return 'Wiki for candidates preparing for GRE-CS';
+	},
+	duckduckgo: function() {
+		open_link("../../duckduckgo.com/default.htm");
+		return 'Try it... You\'ll LOVE it!!';
+	},
+	logical_fallacies: function() {
+		open_link("../../www.csun.edu/~dgw61315/fallacies.html");
+		return 'Because the truth is all about fact & reason...';
+	},
+	picasaweb: function() {
+		open_link("../../picasaweb.google.com/dhruvbird/default.htm");
+		return '"A picture speaks a thousand words."';
+	},
+	terminal: function() {
+		open_link("../tty.html");
+		return 'Search the web using a Terminal Emulator.';
+	},
+	"cd ~/": function() {
+      open_link("../default.htm");
+      return "127.0.0.1 Sweet 127.0.0.1";
+    }, 
+    "61": function() {
+      open_link("../61.html");
+      return "Programming in 61 minutes... I can bet on it!!";
+    },
+    "export": function(cmd) {
+      var exhelp = cmd.match(/^export[\s]+((-h)|(--help))$/i);
+      var only_export = cmd.match(/^export$/i);
+      var evset  = cmd.match(/^export[\s]+([^=]+)=(["'])([\s\S]+)\2/i);
+      var usage  = "Usage: export VARIABLE='value'\nAvailable export variables:\n" + 
+          "target: _top or _blank to open links in same or new window";
+
+      if (only_export) {
+        var ret = [ ];
+        var _mlen = max_length_sa(get_keys(env));
+        for (var k in env) {
+          ret.push(strpad(k, ' ', _mlen) + " : " + env[k]);
+        }
+        return ret.join("\n");
+      }
+
+      if (exhelp) {
+        return usage;
+      }
+      if (!evset) {
+        return usage;
+      }
+      else {
+          // console.log(evset);
+        env[evset[1]] = evset[3];
+        $.cookie(evset[1], evset[3]);
+        // console.log(env);
+          return "Successfully set '" + evset[1] + "' to '" + evset[3] + "'";
+      }
+
+    }
+  };
+
+
+  function is_non_empty_prefix(p, s) {
+    return s.indexOf(p) == 0 && p.length > 0;
+  }
+
+
+  function get_candidates(prefix) {
+      var opts = $.grep(get_keys(cmds), function(c) {
+        return is_non_empty_prefix(prefix, c);
+      });
+      return opts;
+  }
+
+  String.prototype.strip = function(char) {
+      return this.replace(new RegExp("^" + char + "*"), '').
+          replace(new RegExp(char + "*$"), '');
+  }
+
+
+  $.extend_if_has = function(desc, source, array) {
+      for (var i=array.length;i--;) {
+          if (typeof source[array[i]] != 'undefined') {
+              desc[array[i]] = source[array[i]];
+          }
+      }
+      return desc;
+  };
+
+
+
+  function tabcomplete(cmd, pos, terminal, cb) {
+    var prefix = jQuery.trim(cmd.substring(0, pos).toLowerCase());
+    // console.log("prefix:", prefix);
+    var opts = get_candidates(prefix);
+
+    // console.log(prefix, opts);
+
+    if (opts.length == 1 && prefix.length < opts[0].length) {
+      var rem = opts[0].substring(prefix.length);
+      cb(rem);
+    }
+    else if (opts.length > 1 && prefix.length < opts[0].length) {
+      terminal.echo(opts.join("    "));
+    }
+    else {
+        /* Do Nothing */
+    }
+  }
+
+
+  (function($) {
+      $.fn.tilda = function(eval, options) {
+          if ($('body').data('tilda')) {
+              return $('body').data('tilda').terminal;
+          }
+          this.addClass('tilda');
+          options = options || {};
+          eval = eval || function(command, term) {
+              term.echo("you don't set eval for tilda");
+          };
+          var settings = {
+              prompt: '$',
+              name: 'tilda',
+              height: 200,
+              enabled: false,
+              exit: false,
+              greetings: "Type 'help' to invoke help. ~ to exit", 
+              tabcomplete: tabcomplete
+          };
+          if (options) {
+              $.extend(settings, options);
+          }
+          this.append('<div class="td"></div>');
+          var self = this;
+          self.terminal = this.find('.td').terminal(eval, settings);
+          var focus = false;
+          $(document.documentElement).keypress(function(e) {
+              if (e.which == 96) {
+                  self.slideToggle('fast');
+                  self.terminal.command_line.set('');
+                  self.terminal.focus(focus = !focus);
+                  self.terminal.attr({
+                      scrollTop: self.terminal.attr("scrollHeight")
+                  });
+              }
+          });
+          $('body').data('tilda', this);
+          this.hide();
+          return self;
+      };
+  })(jQuery);
+
+  //--------------------------------------------------------------------------
+
+ 
+  jQuery(document).ready(function($) {
+
+    $('#tilda').tilda(function(command, terminal) {
+
+        var clc = jQuery.trim(command.toLowerCase());
+        var clc0 = clc.split(/\s/)[0];
+        var opts = get_candidates(clc0);
+
+        if (opts.length == 1) {
+          terminal.echo(cmds[opts[0]](clc));
+        }
+        else if (opts.length > 1) {
+          var s = "Choose one of: " + opts.join(", ");
+          terminal.echo(s);
+        }
+        else if (clc.length == 0) {
+          terminal.echo("");
+        }
+        else {
+          terminal.echo("terminal: " + command + ": command not found");
+        }
+    });
+
+  });
+
+}());
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,104 @@
+<html>
+<head>
+  <title>How to develop plugins</title>
+  <link rel="stylesheet" href="styles.css" type="text/css" media="all" />
+  <link href='favicon.ico' rel='icon' type='image/vnd.microsoft.icon' />
+</head>
+
+<body class="main">
+
+<center>
+  <h2 class="heading">StickyLinks: Let others see exactly what you see on a page</h2>
+</center>
+
+<table border="0" style="width:40%;">
+<tr>
+  <td><a href="index.php">Home</a></td>
+</tr>
+</table>
+<br/>
+
+<p>
+StickyLinks makes use of URL rewrite plugins at this point in
+time. For example, you might want all google searches to have nothing
+but the <b>q</b> parameter so that irrespective of the exact URL you
+submit, you are able to view the history of that page which may have
+been submitted by someone else with different GET parameters, but the
+same <b>q</b> parameter. Of course, this is assuming that you are
+interested in the content only. StickyLinks allows you to develop and
+submit such URL rewriting modules.</p>
+
+<p>
+You may develop modules using the guideline given below and mail them
+to me at <em>dhruvbird at gmail dot com</em> for inclusion in
+StickyLinks.
+</p>
+
+<p>There is currently 1 module for google's search URL rewriting. The
+code is presented below for easy understanding.</p>
+
+<pre>
+&lt;?php
+
+class mod_google
+{
+  var $host_pat = FALSE;
+
+  function mod_google()
+  {
+    $this->host_pat = "/google\./";
+  }
+
+  function rewrite($url)
+  {
+    $parts = parse_url($url);
+    if ($parts == FALSE)
+      return FALSE;
+
+    if (!isset($parts['host']))
+      return FALSE;
+
+    if (preg_match($this->host_pat, $parts['host']) <= 0)
+      return FALSE;
+
+    if (!isset($parts['query']))
+      return $url;
+
+    $getVariable = array();
+    parse_str($parts['query'], $getVariable);
+    if (!isset($getVariable['q']))
+      return $url;
+
+    $urlPart = explode("?", $url, 2);
+
+    return $urlPart[0] . "?q=" . $getVariable['q'];
+  }
+
+  function test()
+  {
+    echo $this->rewrite("http://www.google.co.in/search?hl=en&client=firefox-a&rls=org.mozilla:en-US:official&hs=Wfr&ei=YXFJS-GsJMqIkAWe24SKAw&sa=X&oi=spell&resnum=0&ct=result&cd=1&ved=0CAYQBSgA&q=php4+classes&spell=1") . "\n";
+    echo $this->rewrite("http://www.google.co.in/") . "\n";
+  }
+
+}
+
+/*
+$mg=new mod_google();
+$mg->test();
+*/
+</pre>
+<br/>
+
+<b>Points to note:</b>
+<ol>
+<li>There is NO closing ?&gt; tag</li>
+<li>The test function is optional</li>
+<li>The rewrite() function must return FALSE if the URL passed does
+not match this plugin. If the URL matches, it must return the
+rewritten URL (which may be the original URL in some cases)</li>
+<li>The file is to be named "mod_*.php" and the class name should be
+"mod_*"</li>
+</ol>
+
+</body>
+</html>
